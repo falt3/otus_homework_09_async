@@ -9,7 +9,7 @@
 class Subscriber {
 public:
     // virtual ~Subscriber() = default;
-    virtual void update(std::shared_ptr<BlockCommand>& block) = 0;    
+    virtual void update(std::shared_ptr<BlockCommands>& block) = 0;    
 };
 
 
@@ -19,7 +19,7 @@ public:
         m_subscribers.push_back(std::move(el));
     }
 protected:
-    void notify(std::shared_ptr<BlockCommand>& block) {
+    void notify(std::shared_ptr<BlockCommands>& block) {
         for (auto& el : m_subscribers)
             el->update(block);
     }

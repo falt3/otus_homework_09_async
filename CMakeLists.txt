@@ -11,7 +11,7 @@ set(nameApp asyncapp)
 set(SOURCES app/main.cpp)
 set(SOURCES_LIB 
         lib/async.cpp 
-        lib/base.cpp 
+        # lib/base.cpp 
         lib/interpret.cpp
         lib/pool.cpp
 )

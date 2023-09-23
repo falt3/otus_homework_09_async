@@ -21,7 +21,7 @@ class PoolThread;
 class QueueTasks : public Subscriber {
 public:
     QueueTasks() {}
-    ~QueueTasks() override {};
+    // ~QueueTasks() override {};
     void addBlockCommands(std::shared_ptr<BlockCommand>& block);
     std::shared_ptr<BlockCommand> getBlockCommands();
 

@@ -3,6 +3,7 @@
 #include <ctime>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 class Log {
     Log() {};

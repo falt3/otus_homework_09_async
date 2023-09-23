@@ -15,25 +15,20 @@ int main() {
         mas.push_back(connect(3));
     }
 
-    // std::string ss;
-    std::stringstream sout;
-    sout << "cmd_1\n" << "cmd_2\n";// << "cmd_3\n";
-    // std::cout << sout.str() ;
-    // ss.str
-    receive((char *)sout.str().data(), sout.str().length(), mas[0]);
-    sout.clear();
-    sout << "cmd_3";
-    receive((char *)sout.str().data(), sout.str().length(), mas[0]);
+    int com = 0;
+    for (int i = 0; i < 10; ++i) {
+        std::stringstream sout;
+        sout << "cmd" << ++com << "\n";
+        sout << "cmd" << ++com << "\n";
+        sout << "cmd" << ++com << "\n";
 
-
-    std::stringstream sout2;
-    sout2 << "cmd_11\n" << "cmd_12\n" << "cmd_13\n";
-    receive((char *)sout2.str().data(), sout2.str().length(), mas[0]);
-
-
+        receive((char *)sout.str().data(), sout.str().length(), mas[0]);
+    }
+    
+    std::this_thread::sleep_for(500ms);
     disconnect(mas[0]);
 
-    std::this_thread::sleep_for(1000ms);
+    std::this_thread::sleep_for(500ms);
     // std::chrono::
     // receive()
     // receive(nullptr, 0, 1);

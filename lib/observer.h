@@ -8,7 +8,7 @@
 
 class Subscriber {
 public:
-    virtual ~Subscriber() = default;
+    // virtual ~Subscriber() = default;
     virtual void update(std::shared_ptr<BlockCommand>& block) = 0;    
 };
 

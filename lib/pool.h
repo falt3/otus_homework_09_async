@@ -13,8 +13,10 @@
 
 class PoolThread_ : public Subscriber {
 public:
-    PoolThread_(int countThreads);
-    ~PoolThread_() override {};
+    using FuncThread = std::function<void(std::shared_ptr<BlockCommand>&, int)>;
+    // using FuncThread = void(std::shared_ptr<BlockCommand>& block, int);
+    PoolThread_(int countThreads, FuncThread f);
+    // ~PoolThread_() override {};
 
     // void addDataToQueue(std::shared_ptr<BlockCommand>& block);
     // std::shared_ptr<BlockCommand> getDataFromQueue();
@@ -34,8 +36,9 @@ private:
     std::mutex m_mutex;
     std::condition_variable m_cv;
     std::queue<std::shared_ptr<BlockCommand>> m_blocks;
-    std::vector<std::unique_ptr<std::thread>> m_threads;
+    // std::vector<std::unique_ptr<std::thread>> m_threads;
     int m_flagStop  = 0;
+    FuncThread m_func;
     
     void worker(int id);    
 };

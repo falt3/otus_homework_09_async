@@ -8,6 +8,10 @@
 #include "observer.h"
 
 
+/**
+ * @brief Класс перевода входных данных в блоки команд
+ * 
+ */
 class Interpretator : public Publisher {
 public:
     Interpretator(int maxSize_) : maxSize(maxSize_) {
@@ -16,8 +20,8 @@ public:
     virtual void input(std::string& line);
 
 private:
-    int dinamicBlock;
-    std::shared_ptr<BlockCommands> block;
-    int maxSize;
+    int dinamicBlock;       ///< уровень вложенности 
+    std::shared_ptr<BlockCommands> block;   ///< блок команд
+    int maxSize;            ///< максимальный размер блока команд
 };
 

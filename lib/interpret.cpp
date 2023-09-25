@@ -1,7 +1,11 @@
 #include "interpret.h"
 #include <iostream>
 
-
+/**
+ * @brief Функция обработки входной строки в команды
+ * 
+ * @param [in] line     строка команд
+ */
 void Interpretator::input(std::string& line) 
 {
     if (line == "{") {

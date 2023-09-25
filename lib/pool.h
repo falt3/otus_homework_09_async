@@ -10,22 +10,25 @@
 #include "interpret.h"
 #include "observer.h"
 
-
-class PoolThread_ : public Subscriber {
+/**
+ * @brief Класс управления потоками и общей для них очереью задач
+ * 
+ */
+class PoolThread : public Subscriber {
 public:
     using FuncThread = std::function<void(std::shared_ptr<BlockCommands>&, int)>;
 
-    PoolThread_(int countThreads, FuncThread f);
+    PoolThread(int countThreads, FuncThread f);
 
     void update(std::shared_ptr<BlockCommands>& block) override;    
-    void stop();
+    void exit();
 
 private:
-    std::mutex m_mutex;
-    std::condition_variable m_cv;
-    std::queue<std::shared_ptr<BlockCommands>> m_blocks;
-    int m_flagStop  = 0;
-    FuncThread m_func;
+    std::mutex m_mutex;                 ///< мьютекс для синхронизации доступа к очереди задач
+    std::condition_variable m_cv;       ///< для управления потока (приостановить/запустить)
+    std::queue<std::shared_ptr<BlockCommands>> m_blocks;    ///< очередь задач
+    int m_flagExit  = 0;                ///< флаг для завершения работы потоков
+    FuncThread m_func;                  ///< функция вызова для обработки задачи
     
-    void worker(int id);    
+    void worker(int id);                ///< функция потока
 };

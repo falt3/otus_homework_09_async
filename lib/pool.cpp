@@ -1,18 +1,29 @@
 #include "pool.h"
 
 
-PoolThread_::PoolThread_(int countThreads, FuncThread f)
+/**
+ * @brief Construct a new PoolThread::PoolThread object
+ * 
+ * @param [in] countThreads количество потоков, которые нужну создать
+ * @param [in] f            функция для обрабоки задачи
+ */
+PoolThread::PoolThread(int countThreads, FuncThread f)
 {
     m_func = f;
     // m_threads.reserve(countThreads);
     for (int i = 0; i < countThreads; ++i) {
-        std::thread th(&PoolThread_::worker, this, i);
+        std::thread th(&PoolThread::worker, this, i);
         th.detach();
     }
 }
 
 
-void PoolThread_::update(std::shared_ptr<BlockCommands> &block)
+/**
+ * @brief Функция добавления нового блока команд в очерель
+ * 
+ * @param [in] block    новый блок команд
+ */
+void PoolThread::update(std::shared_ptr<BlockCommands> &block)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_blocks.push(block);
@@ -20,18 +31,27 @@ void PoolThread_::update(std::shared_ptr<BlockCommands> &block)
 }
 
 
-void PoolThread_::stop()
+/**
+ * @brief Функция устнаовки сигнала дл язавершения потоков
+ * 
+ */
+void PoolThread::exit()
 {
-    m_flagStop = true;
+    m_flagExit = 1;
     m_cv.notify_all();
 }
 
 
-void PoolThread_::worker(int id)
+/**
+ * @brief Рабочая функция потоков
+ * 
+ * @param [in] id   идентификатор потока
+ */
+void PoolThread::worker(int id)
 {
-    while(!m_flagStop) {        
+    while(!m_flagExit) {        
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_cv.wait(lock, [&]() { return !m_blocks.empty() || m_flagStop; } );
+        m_cv.wait(lock, [&]() { return !m_blocks.empty() || m_flagExit; } );
 
         if (!m_blocks.empty()) 
         {

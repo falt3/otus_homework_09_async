@@ -25,8 +25,8 @@ private:
 
 
 std::vector<std::unique_ptr<Context>> g_context;
-std::shared_ptr<PoolThread_> g_poolThreadFile;
-std::shared_ptr<PoolThread_> g_poolThreadConsole;
+std::shared_ptr<PoolThread> g_poolThreadFile;
+std::shared_ptr<PoolThread> g_poolThreadConsole;
 
 //----------------------------------------------------------------------------
 /**
@@ -59,25 +59,25 @@ void ff_file(std::shared_ptr<BlockCommands>& block, int id)
 void libInitilize() 
 {
     // создается пул потоков для записи в консоль
-    g_poolThreadConsole = std::shared_ptr<PoolThread_>(new PoolThread_(1, ff_console));
+    g_poolThreadConsole = std::shared_ptr<PoolThread>(new PoolThread(1, ff_console));
     // создается пул потоков для записи в файл
-    g_poolThreadFile = std::shared_ptr<PoolThread_>(new PoolThread_(2, ff_file));
+    g_poolThreadFile = std::shared_ptr<PoolThread>(new PoolThread(2, ff_file));
 }
 
 
 void libRelease() 
 {
-    g_poolThreadConsole->stop();
-    g_poolThreadFile->stop();
+    g_poolThreadConsole->exit();
+    g_poolThreadFile->exit();
 }
 
 //----------------------------------------------------------------------------
 
 /**
- * @brief 
+ * @brief Функция нового подключения
  * 
  * @param [in] size     размер блока команд
- * @return [out] int    идентификатор контекста
+ * @return [out] int    идентификатор подключения
  */
 int connect(int size) 
 {
@@ -96,11 +96,11 @@ int connect(int size)
 
 
 /**
- * @brief 
+ * @brief Функция приема данных по ранее созданному подключению
  * 
- * @param data 
- * @param len 
- * @param id 
+ * @param [in] data     указатель на начало строки
+ * @param [in] len      длина строки
+ * @param [in] id       идентификатор подключения
  */
 void receive(char* data, std::size_t len, int id) 
 {
@@ -110,8 +110,7 @@ void receive(char* data, std::size_t len, int id)
 
     if (it != g_context.end()) {
         std::istringstream sin({data, len});
-        std::string line;
-        while (std::getline(sin, line) && !line.empty()) {
+        for (std::string line; std::getline(sin, line) && !line.empty(); ) {
             (*it)->input(line);        
         }
     }
@@ -119,9 +118,9 @@ void receive(char* data, std::size_t len, int id)
 
 
 /**
- * @brief 
+ * @brief Функция разрыва подключения
  * 
- * @param id 
+ * @param [in] id   идентификато подключения
  */
 void disconnect(int id) 
 {

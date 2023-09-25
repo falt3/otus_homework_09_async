@@ -5,7 +5,10 @@
 
 #include "command.h"
 
-
+/**
+ * @brief Класс подписчика сообщений
+ * 
+ */
 class Subscriber {
 public:
     // virtual ~Subscriber() = default;
@@ -13,6 +16,10 @@ public:
 };
 
 
+/**
+ * @brief Класс издателя сообщений
+ * 
+ */
 class Publisher {
 public:
     void addSubscriber(std::shared_ptr<Subscriber> el) {

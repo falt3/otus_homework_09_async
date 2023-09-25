@@ -4,22 +4,20 @@
 /**
  * @brief Construct a new PoolThread::PoolThread object
  * 
- * @param [in] countThreads количество потоков, которые нужну создать
- * @param [in] f            функция для обрабоки задачи
+ * @param [in] countThreads количество потоков, которые нужно создать
+ * @param [in] f            функция для обработки задачи
  */
 PoolThread::PoolThread(int countThreads, FuncThread f)
 {
     m_func = f;
-    // m_threads.reserve(countThreads);
-    for (int i = 0; i < countThreads; ++i) {
-        std::thread th(&PoolThread::worker, this, i);
-        th.detach();
-    }
+    m_threads.reserve(countThreads);
+    for (int i = 0; i < countThreads; ++i) 
+        m_threads.emplace_back(&PoolThread::worker, this, i);
 }
 
 
 /**
- * @brief Функция добавления нового блока команд в очерель
+ * @brief Функция добавления нового блока команд в очередь
  * 
  * @param [in] block    новый блок команд
  */
@@ -32,13 +30,16 @@ void PoolThread::update(std::shared_ptr<BlockCommands> &block)
 
 
 /**
- * @brief Функция устнаовки сигнала дл язавершения потоков
- * 
+ * @brief Функция завершения потоков
  */
 void PoolThread::exit()
 {
     m_flagExit = 1;
     m_cv.notify_all();
+
+    for (std::size_t i = 0; i < m_threads.size(); ++i) {;
+        m_threads[i].join();
+    }
 }
 
 
@@ -49,7 +50,7 @@ void PoolThread::exit()
  */
 void PoolThread::worker(int id)
 {
-    while(!m_flagExit) {        
+    while(true) {        
         std::unique_lock<std::mutex> lock(m_mutex);
         m_cv.wait(lock, [&]() { return !m_blocks.empty() || m_flagExit; } );
 
@@ -64,5 +65,6 @@ void PoolThread::worker(int id)
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(1ms);
         }
+        else if (m_flagExit) break;
     }
 }

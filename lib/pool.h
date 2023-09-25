@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <queue>
+#include <vector>
 #include <mutex>
 #include <thread>
 #include <condition_variable>
@@ -30,5 +31,6 @@ private:
     int m_flagExit  = 0;                ///< флаг для завершения работы потоков
     FuncThread m_func;                  ///< функция вызова для обработки задачи
     
+    std::vector<std::thread> m_threads;
     void worker(int id);                ///< функция потока
 };

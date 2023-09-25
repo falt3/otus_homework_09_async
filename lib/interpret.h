@@ -17,6 +17,10 @@ public:
     Interpretator(int maxSize_) : maxSize(maxSize_) {
         block = std::make_shared<BlockCommands>();
     }
+    ~Interpretator() {
+        if (block->size() != 0 && dinamicBlock == 0)
+            notify(block);
+    }
     virtual void input(std::string& line);
 
 private:

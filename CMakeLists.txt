@@ -4,24 +4,52 @@ cmake_minimum_required(VERSION 3.2)
 set(PATCH_VERSION "0" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-set(myProject Async)
-project(${myProject} VERSION ${PROJECT_VESRION})
+project(async VERSION ${PROJECT_VESRION})
 
-set(nameApp asyncapp)
-set(SOURCES app/main.cpp)
-set(SOURCES_LIB 
+option(BUILD_ONE23 "Build app & lib" ON)
+
+set(SOURCES_APP 
+        main.cpp)
+
+if (ON)
+    message(STATUS "Build library")
+    set(nameApp asynctest)
+
+    add_subdirectory(./lib)
+    
+    add_executable(${nameApp} ${SOURCES_APP})
+
+    # target_include_directories(${nameApp} PRIVATE 
+    #     ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+
+    find_package(async CONFIG REQUIRED)
+    # target_link_libraries(${nameApp} Async::async)
+    target_link_libraries(${nameApp} async)
+
+    
+    install(TARGETS ${nameApp} RUNTIME DESTINATION bin)
+
+    # set(CPACK_GENERATOR "DEB")
+    # set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
+    # set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
+    # set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
+    # set(CPACK_PACKAGE_CONTACT example@example.com)
+    # include(CPack)    
+else() 
+    message(STATUS "Build application")
+    set(nameApp asyncapp)
+
+    set(SOURCES_LIB 
         lib/async.cpp 
-        # lib/base.cpp 
         lib/interpret.cpp
-        lib/pool.cpp
-)
+        lib/pool.cpp)
 
-
-add_executable(${nameApp} ${SOURCES} ${SOURCES_LIB})
-# add_executable(testIp test.cpp ip.cpp ip.h)
-target_include_directories(${nameApp} PRIVATE 
+    add_executable(${nameApp} ${SOURCES_APP} ${SOURCES_LIB})
+    
+    target_include_directories(${nameApp} PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/lib
-)
+    )
+endif()
 
 
 set_target_properties(
@@ -30,17 +58,7 @@ set_target_properties(
     CXX_STANDARD_REQUIRED ON
 )
 
-
 target_compile_options(
     ${nameApp} PRIVATE
     -Wall -Wextra -pedantic -Werror
-)    
-
-# install(TARGETS ${nameApp} RUNTIME DESTINATION bin)
-
-# set(CPACK_GENERATOR DEB)
-# set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
-# set(CPACK_PACKAGE_VERSION_MINOR "${PROJECT_VERSION_MINOR}")
-# set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
-# set(CPACK_PACKAGE_CONTACT example@example.com)
-# include(CPack)
+)  

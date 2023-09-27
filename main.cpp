@@ -32,8 +32,11 @@ namespace ns_test_thread
      * @param countThreads  количество потоков
      */
     void run(int countBlocks, int sizeBlock, int countContext, int countThreads) {
+        /// Список соединений со своими очередями команд для выдачи
         std::vector<CommandsContext> commandsContext(countContext);
+        /// Список идентификаторов соединений, храним для дисконекта
         std::vector<int> id_contexts(countContext);
+        /// общая очередь команд, сформированная из commandsContext
         std::queue<CommandThread> commandsThread;
 
         srand(time(0));
@@ -67,8 +70,6 @@ namespace ns_test_thread
         
         // функция потока
         std::mutex  mutex;
-        std::vector<std::thread> threads;
-
         auto ff_worker = [&mutex, &commandsThread](int /*id*/) {
             while (true) {
                 CommandThread el;
@@ -86,6 +87,7 @@ namespace ns_test_thread
         };
 
         // создание потоков
+        std::vector<std::thread> threads;
         for (int i = 0; i < countThreads; ++i) {
             threads.emplace_back(ff_worker, i);
         }

@@ -14,6 +14,11 @@
  */
 class Interpretator : public Publisher {
 public:
+    /**
+     * @brief Construct a new Interpretator object
+     * 
+     * @param maxSize_ размер блока команд
+     */
     Interpretator(int maxSize_) : maxSize(maxSize_) {
         block = std::make_shared<BlockCommands>();
     }

@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 
 
 set(PATCH_VERSION "0" CACHE INTERNAL "Patch version")
-set(PROJECT_VESRION 0.0.${PATCH_VERSION})
+set(PROJECT_VERSION 0.0.${PATCH_VERSION})
 
-project(async VERSION ${PROJECT_VESRION})
+project(async VERSION ${PROJECT_VERSION})
 
-option(BUILD_ONE23 "Build app & lib" ON)
+option(BUILD_ONE23 "Build app & lib" OFF)
 
 set(SOURCES_APP 
         main.cpp)
@@ -19,10 +19,10 @@ if (ON)
     
     add_executable(${nameApp} ${SOURCES_APP})
 
-    # target_include_directories(${nameApp} PRIVATE 
-    #     ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+    target_include_directories(${nameApp} PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-    find_package(async CONFIG REQUIRED)
+    # find_package(async CONFIG REQUIRED)
     # target_link_libraries(${nameApp} Async::async)
     target_link_libraries(${nameApp} async)
 

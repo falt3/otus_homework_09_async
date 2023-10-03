@@ -12,7 +12,7 @@
  * @brief Класс перевода входных данных в блоки команд
  * 
  */
-class Interpretator : public Publisher {
+class Interpretator : public Publisher<BlockCommands> {
 public:
     /**
      * @brief Construct a new Interpretator object

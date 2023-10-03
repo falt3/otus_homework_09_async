@@ -15,7 +15,7 @@
  * @brief Класс управления потоками и общей для них очереью задач
  * 
  */
-class PoolThread : public Subscriber {
+class PoolThread : public Subscriber<BlockCommands> {
 public:
     using FuncThread = std::function<void(std::shared_ptr<BlockCommands>&, int)>;
 

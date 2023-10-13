@@ -39,7 +39,8 @@ private:
 //----------------------------------------------------------------------------
 
 //! список контекстов 
-std::vector<std::unique_ptr<Context>> g_context;
+std::vector<std::shared_ptr<Context>> g_context;
+std::mutex g_mutexContext;
 //! пул потоков для записи в файл
 std::shared_ptr<PoolThread> g_poolThreadFile;
 //! пул потоков для вывода в консоль
@@ -104,10 +105,12 @@ void libRelease()
 int connect(int size) 
 {
     static int incId = 0;
+
+    std::lock_guard<std::mutex> lock(g_mutexContext);
     if (g_context.empty())
         libInitilize();            ///< создаются пулы потоков с очередями заданий
 
-    std::unique_ptr<Context> context(new Context(size, ++incId));   ///< Создаем новый контекс входа
+    std::shared_ptr<Context> context(new Context(size, ++incId));   ///< Создаем новый контекс входа
 
     context->addSubscriber(g_poolThreadConsole);    ///< подписываем пул на получение заданий из контекста
     context->addSubscriber(g_poolThreadFile);
@@ -126,15 +129,20 @@ int connect(int size)
  */
 void receive(const char* data, std::size_t len, int id) 
 {
+    std::unique_lock<std::mutex> lock(g_mutexContext);
+
     auto it = std::find_if(g_context.begin(), g_context.end(), [id](auto& el) {
         return id == el->id();        
     });
+    if (it == g_context.end()) return;
 
-    if (it != g_context.end()) {
-        std::istringstream sin({data, len});
-        for (std::string line; std::getline(sin, line) && !line.empty(); ) {
-            (*it)->input(line);        
-        }
+    auto context (*it);
+    
+    lock.unlock();
+
+    std::istringstream sin({data, len});
+    for (std::string line; std::getline(sin, line) && !line.empty(); ) {
+        context->input(line);        
     }
 }
 
@@ -146,18 +154,18 @@ void receive(const char* data, std::size_t len, int id)
  */
 void disconnect(int id) 
 {
-    // std::cout << "disconnect: " << id << std::endl;
-     auto it = std::find_if(g_context.begin(), g_context.end(), [id](auto& el) {
+    std::lock_guard<std::mutex> lock(g_mutexContext);
+
+    auto it = std::find_if(g_context.begin(), g_context.end(), [id](auto& el) {
         return id == el->id();        
     });
 
-    //! удаление контекста соединения
+    // удаление контекста соединения
     if (it != g_context.end()) {
-        // (*it)->
         g_context.erase(it);
     }
 
-    //! нет соединений -> удалить пулы потоков
+    // нет соединений -> удалить пулы потоков
     if (g_context.empty())
         libRelease();
 }
